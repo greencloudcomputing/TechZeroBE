@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"main/models"
 	"net/http"
 
 	"github.com/brianvoe/gofakeit/v7"
@@ -33,7 +34,7 @@ func carbonHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer resp.Body.Close()
 
-	var data CarbonResponse
+	var data models.CarbonResponse
 
 	err = json.NewDecoder(resp.Body).Decode(&data)
 
@@ -47,7 +48,7 @@ func carbonHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func myResponse(w http.ResponseWriter, r *http.Request) {
-	var f MyResponse
+	var f models.MyResponse
 	err := gofakeit.Struct(&f)
 
 	if err != nil {

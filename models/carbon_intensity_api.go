@@ -1,4 +1,4 @@
-package main
+package models
 
 import (
 	"time"
@@ -35,18 +35,18 @@ type GenerationMix struct {
 
 type MyResponse struct {
 	Name            string       `json:"name" fake:"{firstname}"`
-	TimeTaken       int          `json:"time_taken" fake:"{number}"`
-	ElectricityUsed string       `json:"electricity_used" fake:"{number}"`
-	Cost            float32      `json:"cost" fake:"{number}"`
-	CarbonIntensity string       `json:"carbon_intensity" fake:"{number}"`
-	MemoryUsed      string       `json:"memory_used" fake:"{number}"`
+	TimeTaken       int          `json:"time_taken" fake:"{number:1,1000}"`
+	ElectricityUsed string       `json:"electricity_used" fake:"{number:1,1000}"`
+	Cost            float32      `json:"cost" fake:"{number:1,1000}"`
+	CarbonIntensity string       `json:"carbon_intensity" fake:"{number:1,1000}"`
+	MemoryUsed      string       `json:"memory_used" fake:"{number:1,1024}"`
 	TimeSeries      []TimeSeries `json:"timeseries" fakesize:"2,10"`
 }
 
 type TimeSeries struct {
 	Timestamp       time.Time `json:"timestamp"`
-	ElectricityUsed string    `json:"electricity_used" fake:"{number}"`
-	cost            float32   `json:"cost" fake:"{currency}"`
-	CarbonIntensity string    `json:"carbon_intensity" fake:"{number}"`
-	MemoryUsed      string    `json:"memory_used" fake:"{number}"`
+	ElectricityUsed string    `json:"electricity_used" fake:"{number:1,1000}"`
+	Cost            float32   `json:"cost" fake:"{price:1,100}"`
+	CarbonIntensity string    `json:"carbon_intensity" fake:"{number:1,1000}"`
+	MemoryUsed      string    `json:"memory_used" fake:"{number:1,1024}"`
 }

@@ -31,3 +31,19 @@ func GetCarbonIntensityApi(from string, to string, function_id string) models.Ca
 
 	return data
 }
+
+func CalcCarbonIntensity(res models.CarbonIntensityResponse) []CIPerMinute {
+	var arr []CIPerMinute
+
+	for _, datapoint := range res.Data {
+		ci := CIPerMinute{Timestamp: datapoint.From, CarbonIntensity: datapoint.Intensity.Forecast}
+		arr = append(arr, ci)
+	}
+
+	return arr
+}
+
+type CIPerMinute struct {
+	Timestamp       string `json:"timestamp"`
+	CarbonIntensity int    `json:"carbon_intensity"`
+}

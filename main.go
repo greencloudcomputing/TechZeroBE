@@ -6,16 +6,14 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/brianvoe/gofakeit/v7"
 )
 
 func main() {
-	log := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime)
-	http.HandleFunc("/carbon", carbonHandler)
-	http.HandleFunc("/my_response", myResponse)
-	http.HandleFunc("/health", healthCheck)
+	http.Handle("/carbon", enableCORS(http.HandlerFunc(carbonHandler)))
+	http.Handle("/my_response", enableCORS(http.HandlerFunc(myResponse)))
+	http.Handle("/health", enableCORS(http.HandlerFunc(healthCheck)))
 
 	log.Println("Starting server on :8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
@@ -24,8 +22,8 @@ func main() {
 }
 
 func fetch_carbon_intensity() (CarbonIntensityResponse, error) {
-	log := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime)
-	resp, err := http.Get("https://api.carbonintensity.org.uk/regional/postcode/TF8")
+	fmt.Printf("Received response!")
+	resp, err := http.Get("https://api.carbonintensity.org.uk/regional/postcode/CV8")
 
 	if err != nil {
 		fmt.Printf("Error while fetching carbon intensity data: %s", err)
@@ -35,12 +33,16 @@ func fetch_carbon_intensity() (CarbonIntensityResponse, error) {
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 
+	if err != nil {
+		fmt.Printf("Error while fetching carbon intensity data: %s", err)
+	}
+
 	var data CarbonIntensityResponse
 
 	err = json.Unmarshal(body, &data)
 
 	if err != nil {
-		log.Fatal("Error while fetching carbon intensity data: %s", err)
+		fmt.Printf("Error while fetching carbon intensity data: %s", err)
 	}
 
 	return data, nil
@@ -51,17 +53,11 @@ type Response struct {
 }
 
 func carbonHandler(w http.ResponseWriter, r *http.Request) {
-	log := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime)
 	resp, err := fetch_carbon_intensity()
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		log.Fatal("Error while fetching API data")
-		res_msg := fmt.Sprintf("Error while fetching API data: %s", err)
-		http.Error(w, res_msg, 400)
-		return
+		fmt.Printf("Error while fetching API data: %s", err)
 	} else {
-
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)
 
@@ -83,4 +79,22 @@ func myResponse(w http.ResponseWriter, r *http.Request) {
 func healthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write([]byte("Hello, world!"))
+}
+
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// If it's a preflight request, handle it directly
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		// Call the next handler
+		next.ServeHTTP(w, r)
+	})
 }

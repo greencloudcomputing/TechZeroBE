@@ -24,3 +24,6 @@ A back end API for the Tech Zero hackathon
   - An object array where each object has the following fields:
     - `timestamp` (an ISO8601 compliant timestamp)
     - `carbon_intensity` (an integer representing grams of carbon intensity per kilowatt hour)
+
+- Example:
+   http://localhost:8080/energy?from=2023-06-01T06:00:00Z&to=2023-06-01T18:00:00Z&functionId=667aa0c384809f8a29ddc2f9

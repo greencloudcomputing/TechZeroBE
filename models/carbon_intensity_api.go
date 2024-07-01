@@ -5,12 +5,11 @@ import (
 )
 
 type CarbonResponse struct {
-	Data []CarbonIntensityResponse `json:"data"`
+	Data CarbonIntensityResponse `json:"data"`
 }
 
 type CarbonIntensityResponse struct {
 	RegionId  int    `json:"regionid"`
-	Dnoregion string `json:"dnoregion"`
 	Shortname string `json:"shortname"`
 	Postcode  string `json:"postcode"`
 	Data      []Data `json:"data"`
@@ -38,7 +37,7 @@ type MyResponse struct {
 	TimeTaken       int          `json:"time_taken" fake:"{number:1,1000}"`
 	ElectricityUsed string       `json:"electricity_used" fake:"{number:1,1000}"`
 	Cost            float32      `json:"cost" fake:"{number:1,1000}"`
-	CarbonIntensity string       `json:"carbon_intensity" fake:"{number:1,1000}"`
+	CarbonIntensity int          `json:"carbon_intensity" fake:"{number:1,1000}"`
 	MemoryUsed      string       `json:"memory_used" fake:"{number:1,1024}"`
 	TimeSeries      []TimeSeries `json:"timeseries" fakesize:"2,10"`
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 
@@ -21,47 +20,30 @@ func main() {
 	}
 }
 
-func fetch_carbon_intensity() (CarbonIntensityResponse, error) {
-	fmt.Printf("Received response!")
-	resp, err := http.Get("https://api.carbonintensity.org.uk/regional/postcode/CV8")
-
-	if err != nil {
-		fmt.Printf("Error while fetching carbon intensity data: %s", err)
-		return CarbonIntensityResponse{}, err
-	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		fmt.Printf("Error while fetching carbon intensity data: %s", err)
-	}
-
-	var data CarbonIntensityResponse
-
-	err = json.Unmarshal(body, &data)
-
-	if err != nil {
-		fmt.Printf("Error while fetching carbon intensity data: %s", err)
-	}
-
-	return data, nil
-}
-
 type Response struct {
 	Message string `json:"message"`
 }
 
 func carbonHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := fetch_carbon_intensity()
+	resp, err := http.Get("https://api.carbonintensity.org.uk/regional/postcode/CV8")
 
 	if err != nil {
-		fmt.Printf("Error while fetching API data: %s", err)
-	} else {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
-
+		fmt.Printf("Error while fetching carbon intensity data: %s", err)
 	}
+
+	defer resp.Body.Close()
+
+	var data CarbonResponse
+
+	err = json.NewDecoder(resp.Body).Decode(&data)
+
+	if err != nil {
+		fmt.Printf("Error while fetching carbon intensity data: %s", err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+
 }
 
 func myResponse(w http.ResponseWriter, r *http.Request) {

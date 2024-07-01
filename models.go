@@ -4,17 +4,21 @@ import (
 	"time"
 )
 
+type CarbonResponse struct {
+	Data []CarbonIntensityResponse `json:"data"`
+}
+
 type CarbonIntensityResponse struct {
 	RegionId  int    `json:"regionid"`
 	Dnoregion string `json:"dnoregion"`
 	Shortname string `json:"shortname"`
 	Postcode  string `json:"postcode"`
-	Data      []Data `json:data`
+	Data      []Data `json:"data"`
 }
 
 type Data struct {
-	From          time.Time       `json:"from"`
-	To            time.Time       `json:"to"`
+	From          string          `json:"from"`
+	To            string          `json:"to"`
 	Intensity     Intensity       `json:"intensity"`
 	GenerationMix []GenerationMix `json:"generationmix"`
 }

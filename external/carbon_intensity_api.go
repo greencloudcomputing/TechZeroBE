@@ -60,7 +60,7 @@ type CIPerMinute struct {
 type GCEnergyReporting struct {
 	Name            string        `json:"name"`
 	ExecutionTime   int           `json:"execution_time"`
-	ElectricityUsed int           `json:"electricity_used"`
+	ElectricityUsed float32       `json:"electricity_used"`
 	Cost            float32       `json:"cost"`
 	CITotal         int           `json:"ci_total"`
 	CIPerMinute     []CIPerMinute `json:"ci_per_minute"`

@@ -69,9 +69,9 @@ func EnergyHandler(w http.ResponseWriter, r *http.Request) {
 	// Create GCEnergyReporting instance
 	report := external.GCEnergyReporting{
 		Name:            function_id,
-		ExecutionTime:   123,   // Example value
-		ElectricityUsed: 456,   // Example value
-		Cost:            78.90, // Example value
+		ExecutionTime:   300,    // Example value
+		ElectricityUsed: 0.0317, // Example value
+		Cost:            2.90,   // Example value
 		CITotal:         totalCarbonIntensity,
 		CIPerMinute:     ciPerMinuteArray,
 		//ShellyData:      shellyData.Data,

@@ -1,41 +1,43 @@
 package external
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 type ShellyAPIClient struct {
 	ApiKey string
 }
 
-func (s ShellyAPIClient) set_api_key(key string) {
+func (s *ShellyAPIClient) SetAPIKey(key string) {
 	s.ApiKey = key
 }
 
-func (s ShellyAPIClient) fetch(id string) ShellyResponse {
-	id = "d48afc400484"
-	req := ShellyRequest{s.ApiKey, id}
-	json_req, err := json.Marshal(req)
-	resp, err := http.Post("shelly-100-eu.shelly.cloud/device/status", "application/json", bytes.NewBuffer(json_req))
+func (s *ShellyAPIClient) Fetch(id string) ShellyResponse {
+	// Encode the request parameters as x-www-form-urlencoded
+	data := url.Values{}
+	data.Set("auth_key", s.ApiKey)
+	data.Set("id", id)
+
+	encodedData := data.Encode()
+	resp, err := http.Post("https://shelly-100-eu.shelly.cloud/device/status", "application/x-www-form-urlencoded", strings.NewReader(encodedData))
 
 	if err != nil {
 		fmt.Printf("Error while fetching Shelly data: %s", err)
+		return ShellyResponse{}
 	}
-
 	defer resp.Body.Close()
 
-	var data ShellyResponse
-
-	err = json.NewDecoder(resp.Body).Decode(&data)
-
+	var result ShellyResponse
+	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		fmt.Printf("Error while fetching carbon intensity data: %s", err)
+		fmt.Printf("Error while decoding response: %s", err)
 	}
 
-	return data
+	return result
 }
 
 type ShellyRequest struct {
@@ -49,28 +51,20 @@ type ShellyResponse struct {
 }
 
 type ShellyData struct {
-	Online bool `json:"online"`
+	DeviceStatus DeviceStatus `json:"device_status"`
 }
 
 type DeviceStatus struct {
-	Ts      float32     `json:"ts"`
-	Cloud   CloudStatus `json:"cloud"`
-	Wifi    Wifi        `json:"wifi"`
-	Code    string      `json:"code"`
-	Switch0 Switch      `json:"switch:0"`
-}
-
-type CloudStatus struct {
-	IsConnected bool `json:"connected"`
-}
-
-type Wifi struct {
-	StaticIp string `json:"sta_ip"`
-	Status   string `json:"status"`
-	Ssid     string `json:"ssid"`
-	rssi     int    `json:"rssi"`
+	Switch0 Switch `json:"switch:0"`
 }
 
 type Switch struct {
-	Apower float32 `json:"apower"`
+	Aenergy Aenergy `json:"aenergy"`
+	Apower  float32 `json:"apower"`
+}
+
+type Aenergy struct {
+	ByMinute []float64 `json:"by_minute"`
+	MinuteTS int       `json:"minute_ts"`
+	Total    float64   `json:"total"`
 }
